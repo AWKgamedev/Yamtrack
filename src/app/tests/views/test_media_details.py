@@ -6239,3 +6239,76 @@ class MediaDetailsViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "The Blade Itself")
         mock_openlibrary_book.assert_not_called()
+
+    @patch("app.providers.services.get_media_metadata")
+    def test_media_details_view_anonymous(self, mock_get_media_metadata):
+        """Test the media details view for an anonymous user."""
+        mock_get_media_metadata.return_value = {
+            "media_id": "647",
+            "title": "Final Fantasy VII: Advent Children",
+            "media_type": MediaTypes.MOVIE.value,
+            "source": Sources.TMDB.value,
+            "image": "http://example.com/image.jpg",
+            "overview": "Test overview",
+            "release_date": "2005-09-14",
+            "providers": {"US": []},
+        }
+
+        # Logout to ensure anonymous user
+        self.client.logout()
+
+        url = reverse(
+            "media_details",
+            kwargs={
+                "source": Sources.TMDB.value,
+                "media_type": MediaTypes.MOVIE.value,
+                "media_id": "647",
+                "title": "final-fantasy-vii-advent-children",
+            },
+        )
+
+        # Add public_view=1 to the URL
+        response = self.client.get(f"{url}?public_view=1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Final Fantasy VII: Advent Children")
+
+    @patch("app.views.services.get_media_metadata")
+    def test_season_details_view_anonymous(self, mock_get_media_metadata):
+        """Test the season details view for an anonymous user."""
+        mock_get_media_metadata.side_effect = [
+            {
+                "media_id": "1399",
+                "title": "Game of Thrones",
+                "media_type": MediaTypes.TV.value,
+                "source": Sources.TMDB.value,
+                "seasons": [{"season_number": 1}],
+            },
+            {
+                "media_id": "1399",
+                "title": "Season 1",
+                "media_type": MediaTypes.SEASON.value,
+                "source": Sources.TMDB.value,
+                "season_number": 1,
+                "episodes": [],
+            },
+        ]
+
+        # Logout to ensure anonymous user
+        self.client.logout()
+
+        url = reverse(
+            "season_details",
+            kwargs={
+                "source": Sources.TMDB.value,
+                "media_id": "1399",
+                "title": "game-of-thrones",
+                "season_number": 1,
+            },
+        )
+
+        # Add public_view=1 to the URL
+        response = self.client.get(f"{url}?public_view=1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Season 1")

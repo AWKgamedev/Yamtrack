@@ -5901,10 +5901,11 @@ def media_details(
                 )
                 watch_provider_payload = tmdb_metadata.get("providers")
 
+        watch_provider_region = getattr(request.user, "watch_provider_region", "UNSET")
         watch_providers = (
             tmdb.filter_providers(
                 watch_provider_payload,
-                request.user.watch_provider_region,
+                watch_provider_region,
             )
             if watch_provider_payload is not None
             else None
@@ -6008,7 +6009,7 @@ def media_details(
         "fetching_collection_data": fetching_collection_data if not public_view else False,
         "item_id_for_polling": item_id_for_polling if not public_view else None,
         "watch_providers": watch_providers,
-        "watch_provider_region": request.user.watch_provider_region,
+        "watch_provider_region": watch_provider_region,
         "detail_link_sections": _build_detail_link_sections(
             media_metadata,
             media_type,
@@ -7596,6 +7597,7 @@ def season_details(
             season_metadata["episodes"],
         )
 
+    watch_provider_region = getattr(request.user, "watch_provider_region", "UNSET")
     context = {
         "user": request.user,
         "media": season_metadata,
@@ -7614,9 +7616,9 @@ def season_details(
         "item_id_for_polling": item_id_for_polling if not public_view else None,
         "trakt_score": trakt_score,
         "watch_providers": tmdb.filter_providers(
-            season_metadata.get("providers"), request.user.watch_provider_region
+            season_metadata.get("providers"), watch_provider_region
         ),
-        "watch_provider_region": request.user.watch_provider_region,
+        "watch_provider_region": watch_provider_region,
         "detail_link_sections": _build_detail_link_sections(
             season_metadata,
             MediaTypes.SEASON.value,
