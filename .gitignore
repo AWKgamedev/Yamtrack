@@ -20,6 +20,7 @@ TODO.txt
 # Local dev-only
 .env.dev
 docker-compose.dev.yml
+docker-compose.override.yml
 db-dev/
 
 # Local dev DB
