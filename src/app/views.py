@@ -5879,6 +5879,7 @@ def media_details(
 
     has_collection_data = bool(collection_entries) or collection_entry is not None
 
+    watch_provider_region = getattr(request.user, "watch_provider_region", "UNSET")
     if media_type in [MediaTypes.TV.value, MediaTypes.MOVIE.value, MediaTypes.ANIME.value]:
         watch_provider_payload = media_metadata.get("providers")
         if (
@@ -5901,7 +5902,6 @@ def media_details(
                 )
                 watch_provider_payload = tmdb_metadata.get("providers")
 
-        watch_provider_region = getattr(request.user, "watch_provider_region", "UNSET")
         watch_providers = (
             tmdb.filter_providers(
                 watch_provider_payload,
